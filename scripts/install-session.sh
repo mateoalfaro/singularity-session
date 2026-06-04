@@ -27,11 +27,14 @@ else
 BIN="$BIN"
 export PATH="\$BIN:\$PATH"
 export LD_LIBRARY_PATH="$LIB\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}"
-LOG="/tmp/singularity-session.log"
+STATE="\${XDG_STATE_HOME:-\$HOME/.local/state}/singularity"
+mkdir -p "\$STATE"
+LOG="\$STATE/session.log"
+[ -f "\$LOG" ] && mv -f "\$LOG" "\$LOG.1"
 exec > "\$LOG" 2>&1
 echo "[\$(date)] Starting Singularity session"
 
-nohup "\$BIN/singularity-polkit-agent" >> /tmp/singularity-polkit.log 2>&1 &
+nohup "\$BIN/singularity-polkit-agent" >> "\$STATE/polkit.log" 2>&1 &
 
 if [ -n "\$GDM_SESSION_DBUS_ADDRESS" ] && [ -x "/usr/libexec/gdm-wayland-session" ]; then
     echo "GDM detected - wrapping with gdm-wayland-session"

@@ -50,7 +50,10 @@ pkill -TERM -x singularity-desktop 2>/dev/null || true
 pkill -x singularity-polkit-agent 2>/dev/null || true
 sleep 0.3
 nohup "$BIN/singularity-polkit-agent" >> "$_STATE/polkit.log" 2>&1 &
-systemctl --user restart xdg-desktop-portal 2>/dev/null || true
+# Restart the portal so it picks up the live session environment, but do NOT
+# block on it: xdg-desktop-portal can hang ~25s on its settings-proxy timeout
+# waiting for our portal backend, which would delay the shell launch below.
+systemctl --user restart --no-block xdg-desktop-portal 2>/dev/null || true
 
 while true; do
     "$BIN/singularity-desktop" >> "$_LOG" 2>&1

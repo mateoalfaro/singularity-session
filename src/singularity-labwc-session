@@ -16,8 +16,13 @@ for drv in /sys/class/drm/card[0-9]*/device/driver; do
     esac
 done
 
+_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/singularity"
+mkdir -p "$_STATE"
+_LLOG="$_STATE/labwc.log"
+[ -f "$_LLOG" ] && mv -f "$_LLOG" "$_LLOG.1"
+
 if [ -n "$GDM_SESSION_DBUS_ADDRESS" ] && [ -x "/usr/libexec/gdm-wayland-session" ]; then
-    exec /usr/libexec/gdm-wayland-session "$BIN/labwc" -s "$BIN/singularity-desktop-session"
+    exec /usr/libexec/gdm-wayland-session "$BIN/labwc" -s "$BIN/singularity-desktop-session" >> "$_LLOG" 2>&1
 else
-    exec "$BIN/labwc" -s "$BIN/singularity-desktop-session"
+    exec "$BIN/labwc" -s "$BIN/singularity-desktop-session" >> "$_LLOG" 2>&1
 fi

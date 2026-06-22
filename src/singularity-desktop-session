@@ -55,6 +55,11 @@ nohup "$BIN/singularity-polkit-agent" >> "$_STATE/polkit.log" 2>&1 &
 # waiting for our portal backend, which would delay the shell launch below.
 systemctl --user restart --no-block xdg-desktop-portal 2>/dev/null || true
 
+rm -f "${XDG_RUNTIME_DIR:-/tmp}/singularity-shell-ready"
+if [ -x "$BIN/singularity-splash" ]; then
+    "$BIN/singularity-splash" >> "$_STATE/splash.log" 2>&1 &
+fi
+
 _fails=0
 while true; do
     _t0=$SECONDS

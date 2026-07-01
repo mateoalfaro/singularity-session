@@ -15,6 +15,10 @@ export XDG_DATA_DIRS="$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/
 export GSETTINGS_SCHEMA_DIR="$SHARE/glib-2.0/schemas"
 export GI_TYPELIB_PATH="$LIB/girepository-1.0${GI_TYPELIB_PATH:+:$GI_TYPELIB_PATH}"
 
+if command -v xdg-user-dirs-update >/dev/null 2>&1; then
+    xdg-user-dirs-update >/dev/null 2>&1 || true
+fi
+
 dbus-update-activation-environment --systemd \
     DISPLAY WAYLAND_DISPLAY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP \
     XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS GDK_BACKEND GSK_RENDERER \

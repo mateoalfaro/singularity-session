@@ -7,6 +7,12 @@ export PATH="$BIN:$PATH"
 export LD_LIBRARY_PATH="$PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export SINGULARITY_BLUR_ENABLED=1
 
+if [ -z "${XDG_RUNTIME_DIR:-}" ] || [ ! -d "$XDG_RUNTIME_DIR" ] || [ ! -w "$XDG_RUNTIME_DIR" ]; then
+    _xrd="/tmp/singularity-run-$(id -u)"
+    mkdir -p "$_xrd" 2>/dev/null && chmod 700 "$_xrd" 2>/dev/null
+    export XDG_RUNTIME_DIR="$_xrd"
+fi
+
 for drv in /sys/class/drm/card[0-9]*/device/driver; do
     [ -e "$drv" ] || continue
     case "$(basename "$(readlink -f "$drv")")" in
@@ -21,8 +27,36 @@ mkdir -p "$_STATE"
 _LLOG="$_STATE/labwc.log"
 [ -f "$_LLOG" ] && mv -f "$_LLOG" "$_LLOG.1"
 
-if [ -n "$GDM_SESSION_DBUS_ADDRESS" ] && [ -x "/usr/libexec/gdm-wayland-session" ]; then
-    exec /usr/libexec/gdm-wayland-session "$BIN/labwc" -s "$BIN/singularity-desktop-session" >> "$_LLOG" 2>&1
-else
-    exec "$BIN/labwc" -s "$BIN/singularity-desktop-session" >> "$_LLOG" 2>&1
+[ -r /etc/vconsole.conf ] && . /etc/vconsole.conf
+[ -n "$XKBLAYOUT" ] && export XKB_DEFAULT_LAYOUT="$XKBLAYOUT"
+[ -n "$XKBVARIANT" ] && export XKB_DEFAULT_VARIANT="$XKBVARIANT"
+
+run_labwc() {
+    if [ -n "$GDM_SESSION_DBUS_ADDRESS" ] && [ -x "/usr/libexec/gdm-wayland-session" ]; then
+        /usr/libexec/gdm-wayland-session "$BIN/labwc" -C /usr/share/singularity/labwc -s "$BIN/singularity-desktop-session"
+    elif [ -z "$DBUS_SESSION_BUS_ADDRESS" ] && [ ! -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/bus" ] && command -v dbus-run-session >/dev/null 2>&1; then
+        dbus-run-session -- "$BIN/labwc" -C /usr/share/singularity/labwc -s "$BIN/singularity-desktop-session"
+    else
+        "$BIN/labwc" -C /usr/share/singularity/labwc -s "$BIN/singularity-desktop-session"
+    fi
+}
+
+# Try the hardware renderer first (GSK default gl, labwc default drm/gl). If the
+# session dies within a few seconds it is an early crash on the real GL/GPU path
+# (invisible under QEMU's software path), so fall back to software rendering: the
+# desktop comes up anyway, degraded but alive, and the crash stays in the log for
+# diagnosis (#78). singularity-desktop-session honours an exported GSK_RENDERER.
+_t0=$SECONDS
+run_labwc >> "$_LLOG" 2>&1
+_rc=$?
+_dt=$((SECONDS - _t0))
+if [ "$_dt" -lt 30 ]; then
+    echo "[$(date)] labwc session exited rc=$_rc after ${_dt}s; retrying with software rendering (GSK_RENDERER=cairo, WLR_RENDERER=pixman)" >> "$_LLOG"
+    export GSK_RENDERER=cairo
+    export WLR_RENDERER=pixman
+    export LIBGL_ALWAYS_SOFTWARE=1
+    export GALLIUM_DRIVER=llvmpipe
+    run_labwc >> "$_LLOG" 2>&1
+    _rc=$?
 fi
+exit $_rc

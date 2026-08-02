@@ -6,6 +6,7 @@ PREFIX="$(dirname "$BIN")"
 export PATH="$BIN:$PATH"
 export LD_LIBRARY_PATH="$PREFIX/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export SINGULARITY_BLUR_ENABLED=1
+export GTK_USE_PORTAL=1
 
 if [ -z "${XDG_RUNTIME_DIR:-}" ] || [ ! -d "$XDG_RUNTIME_DIR" ] || [ ! -w "$XDG_RUNTIME_DIR" ]; then
     _xrd="/tmp/singularity-run-$(id -u)"

@@ -15,6 +15,12 @@ export XDG_CURRENT_DESKTOP=Singularity
 export XDG_DATA_DIRS="$HOME/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:$SHARE:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
 export GSETTINGS_SCHEMA_DIR="$SHARE/glib-2.0/schemas"
 export GI_TYPELIB_PATH="$LIB/girepository-1.0${GI_TYPELIB_PATH:+:$GI_TYPELIB_PATH}"
+if command -v gsettings >/dev/null 2>&1 &&
+    [ "$(gsettings get dev.sinty.desktop global-menu-enabled 2>/dev/null)" = "true" ]; then
+    export QT_QPA_PLATFORM=xcb
+else
+    export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-wayland}"
+fi
 
 _STATE="${XDG_STATE_HOME:-$HOME/.local/state}/singularity"
 mkdir -p "$_STATE"
@@ -29,7 +35,7 @@ fi
 dbus-update-activation-environment \
     DISPLAY WAYLAND_DISPLAY XDG_SESSION_TYPE XDG_CURRENT_DESKTOP \
     XDG_RUNTIME_DIR DBUS_SESSION_BUS_ADDRESS GDK_BACKEND GSK_RENDERER \
-    GTK_USE_PORTAL QT_QPA_PLATFORMTHEME \
+    GTK_USE_PORTAL QT_QPA_PLATFORM QT_QPA_PLATFORMTHEME \
     GSETTINGS_SCHEMA_DIR XDG_DATA_DIRS GI_TYPELIB_PATH PATH LD_LIBRARY_PATH \
     2>/dev/null || true
 

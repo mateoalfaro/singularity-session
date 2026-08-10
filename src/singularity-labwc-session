@@ -34,11 +34,11 @@ _LLOG="$_STATE/labwc.log"
 
 run_labwc() {
     if [ -n "$GDM_SESSION_DBUS_ADDRESS" ] && [ -x "/usr/libexec/gdm-wayland-session" ]; then
-        /usr/libexec/gdm-wayland-session "$BIN/labwc" -C /usr/share/singularity/labwc -s "$BIN/singularity-desktop-session"
+        /usr/libexec/gdm-wayland-session "$BIN/labwc" -s "$BIN/singularity-desktop-session"
     elif [ -z "$DBUS_SESSION_BUS_ADDRESS" ] && [ ! -S "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/bus" ] && command -v dbus-run-session >/dev/null 2>&1; then
-        dbus-run-session -- "$BIN/labwc" -C /usr/share/singularity/labwc -s "$BIN/singularity-desktop-session"
+        dbus-run-session -- "$BIN/labwc" -s "$BIN/singularity-desktop-session"
     else
-        "$BIN/labwc" -C /usr/share/singularity/labwc -s "$BIN/singularity-desktop-session"
+        "$BIN/labwc" -s "$BIN/singularity-desktop-session"
     fi
 }
 

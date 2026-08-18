@@ -54,6 +54,21 @@
         <command>gdbus call --session --dest dev.sinty.desktop --object-path /dev/sinty/desktop/Shortcuts --method dev.sinty.desktop.Shortcuts.ExecuteAction "'run_command'"</command>
       </action>
     </keybind>
+    <keybind key="W-g">
+      <action name="GroupWithLast" />
+    </keybind>
+    <keybind key="W-S-g">
+      <action name="Ungroup" />
+    </keybind>
+    <keybind key="W-grave">
+      <action name="GroupNext" />
+    </keybind>
+    <keybind key="W-S-grave">
+      <action name="GroupPrevious" />
+    </keybind>
+    <keybind key="W-S-s">
+      <action name="ToggleGroupSpread" />
+    </keybind>
     <keybind key="W-r">
       <action name="Execute">
         <command>gdbus call --session --dest dev.sinty.desktop --object-path /dev/sinty/desktop/Shortcuts --method dev.sinty.desktop.Shortcuts.ExecuteAction "'retile_windows'"</command>

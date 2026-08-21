@@ -38,9 +38,9 @@ nohup "\$BIN/singularity-polkit-agent" >> "\$STATE/polkit.log" 2>&1 &
 
 if [ -n "\$GDM_SESSION_DBUS_ADDRESS" ] && [ -x "/usr/libexec/gdm-wayland-session" ]; then
     echo "GDM detected - wrapping with gdm-wayland-session"
-    exec /usr/libexec/gdm-wayland-session "\$BIN/labwc" -s "\$BIN/singularity-desktop-session"
+    exec /usr/libexec/gdm-wayland-session "\$BIN/labwc" -S "\$BIN/singularity-desktop-session"
 else
-    exec "\$BIN/labwc" -s "\$BIN/singularity-desktop-session"
+    exec "\$BIN/labwc" -S "\$BIN/singularity-desktop-session"
 fi
 LAUNCHER_EOF
     chmod +x "$LAUNCHER"

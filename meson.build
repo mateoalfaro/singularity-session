@@ -12,3 +12,9 @@ install_data(
   'config/labwc/themerc',
   install_dir: get_option('datadir') / 'singularity' / 'labwc',
 )
+
+install_data(
+  'scripts/migrate-labwc-rc.py',
+  install_dir: get_option('datadir') / 'singularity' / 'labwc',
+  install_mode: 'rwxr-xr-x',
+)

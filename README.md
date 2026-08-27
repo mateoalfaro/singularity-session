@@ -1,5 +1,9 @@
 # Singularity Session
 
+> [!IMPORTANT]
+> Report bugs and request features in the
+> [Singularity Desktop tracker](https://github.com/singularityos-lab/singularity-desktop/issues/new/choose).
+
 Session launchers and compositor configuration for the Singularity Desktop.
 
 This holds the two static, self-locating launchers used by display managers

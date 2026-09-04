@@ -131,7 +131,18 @@ enable_software_rendering() {
 }
 
 run_safe_mode() {
-    enable_software_rendering
+    # Safe mode suppresses optional shell features; it must NOT force the
+    # software rendering stack. On machines with a working GPU, rendering the
+    # whole session on the CPU maxes out cores and makes the recovery session
+    # unusably slow (libinput lag, crawl), and in the escalation ladder the
+    # software path has already failed by the time safe mode starts. Set
+    # SINGULARITY_SAFE_MODE_SOFTWARE=1 to force it when the GPU stack itself
+    # is the suspected culprit.
+    if [ "${SINGULARITY_SAFE_MODE_SOFTWARE:-0}" = "1" ]; then
+        enable_software_rendering
+    else
+        unset GSK_RENDERER WLR_RENDERER LIBGL_ALWAYS_SOFTWARE GALLIUM_DRIVER
+    fi
     export SINGULARITY_SAFE_MODE=1
     export SINGULARITY_SAFE_MODE_MARKER="$_SAFE_MARKER"
     export SINGULARITY_SAFE_MODE_REASON="Repeated startup failures"

@@ -73,9 +73,9 @@ while true; do
     _EC=$?
     _dt=$((SECONDS - _t0))
     if [ $_EC -eq 0 ]; then
-        echo "[$(date)] singularity-desktop exited 0, waiting 5s..." >> "$_LOG"
+        echo "[$(date)] singularity-desktop exited 0, restarting..." >> "$_LOG"
         _fails=0
-        sleep 5
+        sleep 0.2
     else
         if [ $_dt -lt 3 ]; then _fails=$((_fails + 1)); else _fails=0; fi
         if [ $_fails -ge 5 ]; then
